@@ -1,0 +1,38 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+
+# Sample data: 'RAM', 'Battery', 'Camera', 'Price'
+data = {
+    'RAM': [2, 4, 6, 8, 12],
+    'Battery': [3000, 3500, 4000, 4500, 5000],
+    'Camera': [12, 16, 20, 24, 32],
+    'Price': [200, 300, 400, 500, 600]
+}
+
+# Convert the dictionary into a pandas DataFrame
+df = pd.DataFrame(data)
+
+# Define features (X) and target (y)
+X = df[['RAM', 'Battery', 'Camera']]
+y = df['Price']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create a Linear Regression model
+model = LinearRegression()
+
+# Train the model
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Calculate Mean Squared Error
+mse = mean_squared_error(y_test, y_pred)
+
+print(f"Predicted Prices: {y_pred}")
+print(f"Mean Squared Error: {mse}")

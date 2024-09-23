@@ -1,0 +1,60 @@
+import numpy as np
+
+def candidate_elimination(attributes, examples):
+    # Initialize the most specific hypothesis (S) and the most general hypothesis (G)
+    S = ['?' * len(attributes[0])]
+    G = ['0' * len(attributes[0])]
+    
+    # Iterate through each example
+    for example in examples:
+        instance, label = example[:-1], example[-1]
+        
+        if label == 'Yes':
+            # Generalize S to cover this positive example
+            S = [s for s in S if is_more_specific(instance, s)]
+            new_S = []
+            for s in S:
+                new_S.extend([generalize(s, instance, i) for i in range(len(s)) if s[i] == '?'])
+            S = [s for s in new_S if is_more_specific(instance, s)]
+        
+        else:
+            # Specialize G to exclude this negative example
+            G = [g for g in G if is_less_specific(instance, g)]
+            new_G = []
+            for g in G:
+                new_G.extend([specialize(g, instance, i) for i in range(len(g)) if g[i] == '0'])
+            G = [g for g in new_G if is_less_specific(instance, g)]
+    
+    return S, G
+
+def is_more_specific(instance, hypothesis):
+    return all(h == '?' or h == i for h, i in zip(hypothesis, instance))
+
+def is_less_specific(instance, hypothesis):
+    return all(h == '0' or h == i for h, i in zip(hypothesis, instance))
+
+def generalize(s, instance, index):
+    return ''.join(instance[i] if i == s[i] or s[i] == '?' else '?' for i in range(len(s)))
+
+def specialize(g, instance, index):
+    return ''.join(instance[i] if g[i] == '0' else g[i] for i in range(len(g)))
+
+# Sample data: [['Attribute1', 'Attribute2', 'Label']]
+examples = [
+    ['Sunny', 'Hot', 'Yes'],
+    ['Sunny', 'Cool', 'No'],
+    ['Rainy', 'Cool', 'Yes'],
+    ['Sunny', 'Mild', 'Yes']
+]
+
+# Convert data to a format suitable for Candidate Elimination
+attributes = [['Sunny', 'Hot'], ['Sunny', 'Cool'], ['Rainy', 'Cool'], ['Sunny', 'Mild']]
+formatted_examples = [ex + ['Yes'] for ex in attributes] + [ex + ['No'] for ex in attributes[1:3]]
+
+# Apply Candidate Elimination
+S, G = candidate_elimination(attributes, formatted_examples)
+
+print("Most Specific Hypotheses (S):")
+print(S)
+print("Most General Hypotheses (G):")
+print(G)
